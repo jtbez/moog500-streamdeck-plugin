@@ -1,0 +1,5 @@
+node_modules/
+com.moog500.presetbuilder.sdPlugin/bin/node_modules/
+logs/
+.DS_Store
+*.streamDeckPlugin

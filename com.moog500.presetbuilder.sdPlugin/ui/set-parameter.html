@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Set Parameter</title>
+  <link rel="stylesheet" href="https://sdpi-components.dev/releases/v3/sdpi-components.js" />
+  <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #2D2D2D;
+      color: #ccc;
+      padding: 8px;
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .sdpi-wrapper {
+      padding: 4px 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: #999;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select,
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      background: #3B3B3B;
+      color: #ddd;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    select:focus,
+    input:focus {
+      outline: none;
+      border-color: #FF8C00;
+    }
+
+    option {
+      background: #3B3B3B;
+    }
+
+    .section-title {
+      color: #FF8C00;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 16px 0 8px 0;
+      border-bottom: 1px solid #444;
+      padding-bottom: 4px;
+    }
+
+    .hint {
+      color: #777;
+      font-size: 10px;
+      margin-top: -8px;
+      margin-bottom: 12px;
+    }
+
+    .param-description {
+      color: #888;
+      font-size: 11px;
+      padding: 8px;
+      background: #333;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .interaction-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-bottom: 10px;
+    }
+
+    .badge-boolean {
+      background: #2a4a2a;
+      color: #6fcf6f;
+    }
+
+    .badge-binary {
+      background: #3a3a1a;
+      color: #cfcf6f;
+    }
+
+    .badge-list {
+      background: #2a3a4a;
+      color: #6fafcf;
+    }
+
+    .badge-continuous {
+      background: #3a2a1a;
+      color: #cf8f4f;
+    }
+
+    .badge-computed {
+      background: #3a1a2a;
+      color: #cf6faf;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sdpi-wrapper">
+    <div class="section-title">Moog 500 Parameter</div>
+
+    <label for="parameterType">Parameter</label>
+    <select id="parameterType">
+      <optgroup label="─── Delay Time ───">
+        <option value="Delay Time (BPM Sync)">Delay Time (BPM Sync)</option>
+        <option value="Delay Time (Manual)">Delay Time (Manual ms)</option>
+      </optgroup>
+      <optgroup label="─── Continuous ───">
+        <option value="Feedback">Feedback (%)</option>
+        <option value="LFO Rate">LFO Rate (%)</option>
+        <option value="LFO Amount">LFO Amount (%)</option>
+        <option value="LFO Duty Cycle">LFO Duty Cycle (%)</option>
+        <option value="Time Slew Rate">Time Slew Rate (%)</option>
+      </optgroup>
+      <optgroup label="─── LFO ───">
+        <option value="LFO Shape">LFO Shape</option>
+        <option value="LFO Sync On/Off">LFO Sync On/Off</option>
+        <option value="LFO Clock Division">LFO Clock Division</option>
+        <option value="LFO MIDI Note Reset">LFO MIDI Note Reset</option>
+      </optgroup>
+      <optgroup label="─── Time / Sync ───">
+        <option value="Time Range">Time Range (Short/Long)</option>
+        <option value="Time Multiplier">Time Multiplier</option>
+        <option value="Time Sync On/Off">Time Sync On/Off</option>
+        <option value="Time Clock Division">Time Clock Division</option>
+      </optgroup>
+      <optgroup label="─── MIDI / Control ───">
+        <option value="Pitch Bend Amount">Pitch Bend Amount</option>
+        <option value="MIDI Note Mode">MIDI Note Mode</option>
+        <option value="Mod Wheel → LFO">Mod Wheel → LFO</option>
+      </optgroup>
+      <optgroup label="─── Tap Tempo ───">
+        <option value="Tap Tempo Multiplier">Tap Tempo Multiplier</option>
+        <option value="Tap/Sync Destination">Tap/Sync Destination</option>
+        <option value="Tap Switch Polarity">Tap Switch Polarity</option>
+      </optgroup>
+      <optgroup label="─── Misc ───">
+        <option value="Filter Mode">Filter (Bright/Dark)</option>
+        <option value="CV Input Mode">CV Input Mode</option>
+        <option value="Time LED Divider">Time LED Divider</option>
+      </optgroup>
+    </select>
+
+    <div id="interactionBadge" style="display:none"></div>
+    <div id="paramDescription" class="param-description">Select a parameter to see its description.</div>
+    <div id="interactionHint" class="hint"></div>
+
+    <div id="encoderSection" style="display:none">
+      <div class="section-title">Encoder Wheel</div>
+      <label for="encoderIndex">Assign to wheel</label>
+      <select id="encoderIndex">
+        <option value="">Unassigned</option>
+        <option value="1">Encoder 1</option>
+        <option value="2">Encoder 2</option>
+        <option value="3">Encoder 3</option>
+        <option value="4">Encoder 4</option>
+      </select>
+      <div class="hint">Stamps an E1–E4 prefix on the button so you can tell instances apart on a Stream Deck+.</div>
+    </div>
+  </div>
+
+  <script>
+    // Mirrors getInteractionType() in parameters.js
+    const INTERACTION_TYPES = {
+      // boolean — On/Off toggle, ● ○ indicator
+      "LFO Sync On/Off": "boolean",
+      "Time Sync On/Off": "boolean",
+      "Mod Wheel → LFO": "boolean",
+      "LFO MIDI Note Reset": "boolean",
+      // binary — 2-option toggle (not On/Off)
+      "Filter Mode": "binary",
+      "Time Range": "binary",
+      "Tap/Sync Destination": "binary",
+      "Tap Switch Polarity": "binary",
+      "MIDI Note Mode": "binary",
+      // list — multi-option, encoder cycles
+      "LFO Shape": "list",
+      "Time Multiplier": "list",
+      "Time Clock Division": "list",
+      "LFO Clock Division": "list",
+      "Pitch Bend Amount": "list",
+      "Tap Tempo Multiplier": "list",
+      "CV Input Mode": "list",
+      "Time LED Divider": "list",
+      // continuous — percentage/ms, encoder adjusts
+      "Feedback": "continuous",
+      "LFO Rate": "continuous",
+      "LFO Amount": "continuous",
+      "LFO Duty Cycle": "continuous",
+      "Time Slew Rate": "continuous",
+      "Delay Time (Manual)": "continuous",
+      // computed — BPM-sync, encoder adjusts BPM
+      "Delay Time (BPM Sync)": "computed"
+    };
+
+    const ENCODER_SUPPORTED = new Set(["list", "continuous", "computed"]);
+
+    const BADGE_LABELS = {
+      boolean: "Toggle On/Off",
+      binary: "Toggle",
+      list: "List",
+      continuous: "Continuous",
+      computed: "Computed"
+    };
+
+    const HINTS = {
+      boolean: "<strong>Keypad:</strong> Press to toggle On/Off (● / ○).<br/><strong>Encoder:</strong> Rotate to cycle, press to reset to default.",
+      binary: "<strong>Keypad:</strong> Press to toggle between the two options.<br/><strong>Encoder:</strong> Rotate to cycle, press to reset to default.",
+      list: "<strong>Keypad:</strong> Press to choose from list via popup.<br/><strong>Encoder:</strong> Rotate to cycle options, press to reset.",
+      continuous: "<strong>Keypad:</strong> Press to enter value via popup.<br/><strong>Encoder:</strong> Rotate to adjust (hold for fine), press to reset, touch for popup.",
+      computed: "<strong>Keypad:</strong> Press to set BPM + beat unit + division via popup.<br/><strong>Encoder:</strong> Rotate to adjust BPM, press to reset."
+    };
+
+    const DESCRIPTIONS = {
+      "Delay Time (BPM Sync)": "Calculate delay time from BPM, beat unit, and beat division. Auto-selects multiplier and range. Outputs CC12/44 (Time), CC74 (Range), CC75 (Multiplier), CC76 (Sync Off).",
+      "Delay Time (Manual)": "Set delay time directly in milliseconds (35–6400ms). Auto-selects multiplier and range mode.",
+      "Feedback": "Delay feedback/regeneration amount. CC13 (MSB) + CC45 (LSB). 0–100% maps to 0–127.",
+      "LFO Rate": "LFO modulation speed. CC15 (MSB) + CC47 (LSB). 0–100% maps to 0–127.",
+      "LFO Amount": "LFO modulation depth/intensity. CC16 (MSB) + CC48 (LSB). 0–100% maps to 0–127.",
+      "LFO Duty Cycle": "LFO pulse width / duty cycle. CC20 (MSB) + CC52 (LSB). 14-bit resolution.",
+      "Time Slew Rate": "Glide/portamento rate when changing delay times. CC5 (MSB) + CC37 (LSB). 14-bit resolution.",
+      "LFO Shape": "LFO waveform: Off, Sine, Triangle, Square, Saw, Ramp, S&H, Smooth S&H. CC17.",
+      "Filter Mode": "Delay tone filter: Bright or Dark. CC89.",
+      "Time Range": "Base time range: Short (0.5x, max 400ms) or Long (1.0x, max 800ms). CC74.",
+      "Time Multiplier": "Multiply base delay time: 1x, 2x, 4x, or 8x. CC75.",
+      "Time Sync On/Off": "Sync delay time to MIDI clock. CC76.",
+      "Time Clock Division": "Clock division when synced to MIDI clock. CC77.",
+      "LFO Sync On/Off": "Sync LFO rate to MIDI clock. CC78.",
+      "LFO Clock Division": "LFO clock division when synced. CC79.",
+      "Pitch Bend Amount": "Pitch bend range: Off to 24 semitones. CC80.",
+      "MIDI Note Mode": "Control delay time from MIDI note-on messages. CC82.",
+      "Mod Wheel → LFO": "Route mod wheel (CC1) to LFO amount. CC85.",
+      "Tap Tempo Multiplier": "Multiply tapped tempo: 1x, 2x, 3x, 4x. CC86.",
+      "Tap/Sync Destination": "Route tap tempo to Time or LFO rate. CC87.",
+      "CV Input Mode": "Assign the rear CV input: Tap, Time, Feedback, LFO Rate, LFO Amt, LFO Shape. CC90.",
+      "Tap Switch Polarity": "Tap footswitch polarity: Normally Closed or Open. CC114.",
+      "Time LED Divider": "LED tempo indicator flash rate divider (x1–x8). CC116.",
+      "LFO MIDI Note Reset": "Reset LFO phase on incoming MIDI note. CC73."
+    };
+
+    let websocket = null;
+    let uuid = null;
+    let actionInfo = null;
+    let currentSettings = {};
+
+    function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegisterEvent, inInfo, inActionInfo) {
+      uuid = inPropertyInspectorUUID;
+      actionInfo = JSON.parse(inActionInfo);
+      currentSettings = actionInfo.payload.settings || {};
+
+      websocket = new WebSocket("ws://127.0.0.1:" + inPort);
+
+      websocket.onopen = function () {
+        websocket.send(JSON.stringify({ event: inRegisterEvent, uuid: inPropertyInspectorUUID }));
+
+        if (currentSettings.parameterType) {
+          document.getElementById("parameterType").value = currentSettings.parameterType;
+          updateParamUI(currentSettings.parameterType);
+        }
+        if (currentSettings.encoderIndex) {
+          document.getElementById("encoderIndex").value = currentSettings.encoderIndex;
+        }
+      };
+    }
+
+    function updateParamUI(paramName) {
+      const type = INTERACTION_TYPES[paramName];
+
+      // Description
+      document.getElementById("paramDescription").textContent =
+        DESCRIPTIONS[paramName] || "No description available.";
+
+      // Interaction badge
+      const badge = document.getElementById("interactionBadge");
+      if (type) {
+        badge.className = `interaction-badge badge-${type}`;
+        badge.textContent = BADGE_LABELS[type] || type;
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Interaction hint
+      document.getElementById("interactionHint").innerHTML = HINTS[type] || "";
+
+      // Encoder section — only for types that benefit from a dial
+      const encoderSection = document.getElementById("encoderSection");
+      if (ENCODER_SUPPORTED.has(type)) {
+        encoderSection.style.display = "block";
+      } else {
+        encoderSection.style.display = "none";
+        // Clear any saved encoder assignment — it no longer applies
+        document.getElementById("encoderIndex").value = "";
+        currentSettings.encoderIndex = "";
+      }
+    }
+
+    function saveSettings() {
+      currentSettings.parameterType = document.getElementById("parameterType").value;
+      currentSettings.encoderIndex = document.getElementById("encoderIndex").value;
+
+      if (websocket && websocket.readyState === 1) {
+        websocket.send(JSON.stringify({
+          event: "setSettings",
+          context: uuid,
+          payload: currentSettings
+        }));
+      }
+    }
+
+    document.getElementById("parameterType").addEventListener("change", function () {
+      updateParamUI(this.value);
+      saveSettings();
+    });
+    document.getElementById("encoderIndex").addEventListener("change", saveSettings);
+  </script>
+</body>
+
+</html>

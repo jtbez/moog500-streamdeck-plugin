@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/layout.json",
+  "id": "parameter-layout",
+  "items": [
+    {
+      "key": "paramName",
+      "type": "text",
+      "rect": [8, 6, 152, 18],
+      "font": { "size": 12, "weight": 600 },
+      "alignment": "left",
+      "color": "#AAAAAA"
+    },
+    {
+      "key": "valueDisplay",
+      "type": "text",
+      "rect": [8, 28, 152, 28],
+      "font": { "size": 22, "weight": 700 },
+      "alignment": "center",
+      "color": "#FFFFFF"
+    },
+    {
+      "key": "rangeBar",
+      "type": "bar",
+      "rect": [8, 62, 152, 10],
+      "value": 0,
+      "border_w": 1,
+      "bar_bg_c": "0:#333333,1:#333333",
+      "bar_fill_c": "0:#FF8C00,1:#FF6600"
+    }
+  ]
+}

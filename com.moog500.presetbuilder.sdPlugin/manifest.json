@@ -1,0 +1,98 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "Moog 500 Preset Builder",
+  "Version": "1.1.0.0",
+  "Author": "Moog Preset Builder",
+  "UUID": "com.moog500.presetbuilder",
+  "Description": "Build and commit MIDI presets for the Moog 500 Series Analog Delay to QLab via OSC.",
+  "Icon": "static/imgs/plugin/marketplace",
+  "CategoryIcon": "static/imgs/plugin/category-icon",
+  "Category": "Moog 500 Preset Builder",
+  "CodePath": "bin/plugin.js",
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "6.6"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "10.15"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "disabled"
+  },
+  "Actions": [
+    {
+      "Name": "Set Parameter",
+      "UUID": "com.moog500.presetbuilder.set-parameter",
+      "Icon": "static/imgs/actions/parameter/icon",
+      "Tooltip": "Set a Moog 500 Analog Delay parameter value. Select the parameter type in the configuration panel.",
+      "PropertyInspectorPath": "ui/set-parameter.html",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/parameter-layout.json",
+        "TriggerDescription": {
+          "Rotate": "Adjust value",
+          "Push": "Reset to default",
+          "Touch": "Enter exact value"
+        }
+      },
+      "States": [
+        {
+          "Image": "static/imgs/actions/parameter/key",
+          "TitleAlignment": "bottom",
+          "FontSize": 10
+        }
+      ],
+      "UserTitleEnabled": true
+    },
+    {
+      "Name": "Reset to Defaults",
+      "UUID": "com.moog500.presetbuilder.reset",
+      "Icon": "static/imgs/actions/parameter/icon",
+      "Tooltip": "Reset all Moog 500 parameters to factory defaults and send MIDI. Logs a pass/fail verification of all calculated CC values.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "static/imgs/actions/parameter/key",
+          "TitleAlignment": "middle",
+          "Title": "RESET"
+        },
+        {
+          "Image": "static/imgs/actions/parameter/key",
+          "TitleAlignment": "middle",
+          "Title": "Sending..."
+        }
+      ]
+    },
+    {
+      "Name": "Commit to QLab",
+      "UUID": "com.moog500.presetbuilder.commit",
+      "Icon": "static/imgs/actions/commit/icon",
+      "Tooltip": "Commit all stored Moog 500 parameter values to QLab as a MIDI cue group via OSC.",
+      "PropertyInspectorPath": "ui/commit.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "static/imgs/actions/commit/key",
+          "TitleAlignment": "middle",
+          "Title": "COMMIT"
+        },
+        {
+          "Image": "static/imgs/actions/commit/key",
+          "TitleAlignment": "middle",
+          "Title": "Sending..."
+        }
+      ]
+    }
+  ]
+}

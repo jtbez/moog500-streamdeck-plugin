@@ -1,0 +1,20 @@
+{
+  "name": "com.moog500.presetbuilder",
+  "version": "1.0.0",
+  "description": "Moog 500 Series Analog Delay Preset Builder for Stream Deck",
+  "main": "src/plugin.js",
+  "scripts": {
+    "build": "rollup -c && npm run copy-native-deps",
+    "copy-native-deps": "rm -rf com.moog500.presetbuilder.sdPlugin/bin/node_modules && mkdir -p com.moog500.presetbuilder.sdPlugin/bin/node_modules && cp -r node_modules/midi node_modules/bindings node_modules/file-uri-to-path com.moog500.presetbuilder.sdPlugin/bin/node_modules/",
+    "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.moog500.presetbuilder\""
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^2.0.0",
+    "midi": "^2.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "rollup": "^4.0.0"
+  }
+}

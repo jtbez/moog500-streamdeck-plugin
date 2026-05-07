@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Commit to QLab</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #2D2D2D;
+      color: #ccc;
+      padding: 8px;
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .sdpi-wrapper {
+      padding: 4px 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: #999;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select,
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      background: #3B3B3B;
+      color: #ddd;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    select:focus,
+    input:focus {
+      outline: none;
+      border-color: #FF8C00;
+    }
+
+    .section-title {
+      color: #FF8C00;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 16px 0 8px 0;
+      border-bottom: 1px solid #444;
+      padding-bottom: 4px;
+    }
+
+    .hint {
+      color: #777;
+      font-size: 10px;
+      margin-top: -8px;
+      margin-bottom: 12px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .row>div {
+      flex: 1;
+    }
+
+    .info-box {
+      color: #888;
+      font-size: 11px;
+      padding: 8px;
+      background: #333;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      background: #c0392b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn:hover {
+      background: #e74c3c;
+    }
+
+    .btn.secondary {
+      background: #555;
+    }
+
+    .btn.secondary:hover {
+      background: #666;
+    }
+
+    .param-group-label {
+      color: #888;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 8px 0 4px 0;
+    }
+
+    .param-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 0;
+      border-bottom: 1px solid #3a3a3a;
+    }
+
+    .param-checkbox-row:last-child {
+      border-bottom: none;
+    }
+
+    .param-checkbox-row input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      padding: 0;
+      accent-color: #FF8C00;
+      cursor: pointer;
+    }
+
+    .param-checkbox-row label {
+      margin: 0;
+      color: #ccc;
+      font-size: 12px;
+      text-transform: none;
+      letter-spacing: normal;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    .filter-actions .btn {
+      margin-top: 0;
+      flex: 1;
+      font-size: 10px;
+      padding: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sdpi-wrapper">
+    <div class="section-title">About Commit</div>
+    <div class="info-box">
+      This button creates a QLab cue group with all your stored parameter values.
+      MIDI commands are sent immediately as you adjust parameters—this button only affects QLab.
+      You'll be prompted for a meaningful cue name (e.g., "Preset 001") on each commit.
+    </div>
+
+    <div class="section-title">QLab Connection</div>
+
+    <div class="row">
+      <div>
+        <label for="qlabHost">QLab Host IP</label>
+        <input type="text" id="qlabHost" value="127.0.0.1" placeholder="127.0.0.1" />
+      </div>
+      <div>
+        <label for="qlabPort">OSC Port</label>
+        <input type="number" id="qlabPort" value="53000" min="1" max="65535" />
+      </div>
+    </div>
+    <div class="hint">Default: 127.0.0.1:53000 (QLab on this Mac)</div>
+
+    <label for="workspaceId">QLab Workspace ID</label>
+    <input type="text" id="workspaceId" placeholder="e.g. 4A3F2B1C-…" />
+    <div class="hint">Find in QLab → Workspace Settings → OSC. Required for cue creation.</div>
+
+    <div class="section-title">MIDI Output (Global)</div>
+
+    <label for="midiDeviceName">MIDI Output Device</label>
+    <select id="midiDeviceName">
+      <option value="">— Select device —</option>
+    </select>
+    <button class="btn secondary" id="btnRefreshDevices" style="margin-bottom:12px">Refresh Devices</button>
+    <div class="hint">Configure the MIDI device here. MIDI CCs are sent to this device immediately whenever a parameter
+      button is pressed. Does not affect commit to QLab.</div>
+
+    <div class="row">
+      <div>
+        <label for="midiChannel">MIDI Channel (1–16)</label>
+        <input type="number" id="midiChannel" value="1" min="1" max="16" />
+      </div>
+    </div>
+    <div class="hint">Match MIDI channel to your Moog 500's configuration.</div>
+
+    <div class="section-title">QLab Commit Settings</div>
+
+    <div class="row">
+      <div>
+        <label for="midiPatch">MIDI Patch in QLab (1–8)</label>
+        <input type="number" id="midiPatch" value="1" min="1" max="8" />
+      </div>
+    </div>
+    <div class="hint">Match MIDI patch to your Moog 500's configuration in QLab.</div>
+
+    <div class="section-title">Cue Group Settings</div>
+
+    <label for="preWaitInterval">Pre-Wait Between Cues (seconds)</label>
+    <input type="number" id="preWaitInterval" value="0.1" min="0" max="5" step="0.05" />
+    <div class="hint">Cumulative delay between each MIDI CC cue in the group. 0.1s is typical.</div>
+
+    <label for="cueListNumber">Target Cue List Number (optional)</label>
+    <input type="text" id="cueListNumber" value="" placeholder="Leave empty for current cue list" />
+    <div class="hint">If set, the group will be created in this specific cue list. On commit, you'll be prompted for a
+      meaningful cue name.</div>
+
+    <div class="section-title">Parameter Filters</div>
+    <div class="hint">Deselected parameters will not be committed to QLab or output via MIDI on change.</div>
+    <div class="filter-actions">
+      <button class="btn secondary" id="btnSelectAll">Select All</button>
+      <button class="btn secondary" id="btnSelectNone">Deselect All</button>
+    </div>
+    <div id="parameterFilters"></div>
+
+    <div class="section-title">Stored Parameters</div>
+    <div id="storedInfo" class="info-box">Loading...</div>
+
+    <button class="btn secondary" id="btnRefresh" onclick="refreshInfo()">Refresh Count</button>
+  </div>
+
+  <script>
+    let websocket = null;
+    let uuid = null;
+    let actionInfo = null;
+    let currentSettings = {};
+
+    const FIELDS = ["qlabHost", "qlabPort", "workspaceId", "midiPatch", "midiChannel", "midiDeviceName", "preWaitInterval", "cueListNumber"];
+
+    const PARAM_GROUPS = [
+      { label: "Delay Time", params: ["Delay Time (BPM Sync)", "Delay Time (Manual)"] },
+      { label: "Feedback", params: ["Feedback"] },
+      { label: "LFO", params: ["LFO Shape", "LFO Rate", "LFO Amount", "LFO Duty Cycle", "LFO Sync On/Off", "LFO Clock Division", "LFO MIDI Note Reset"] },
+      { label: "Time / Sync", params: ["Time Range", "Time Multiplier", "Time Sync On/Off", "Time Clock Division", "Time Slew Rate", "Time LED Divider"] },
+      { label: "Control", params: ["Filter Mode", "Pitch Bend Amount", "MIDI Note Mode", "Mod Wheel → LFO", "Tap Tempo Multiplier", "Tap/Sync Destination", "CV Input Mode", "Tap Switch Polarity"] }
+    ];
+
+    function buildParamFilters(disabledParams) {
+      const container = document.getElementById("parameterFilters");
+      container.innerHTML = "";
+
+      for (const group of PARAM_GROUPS) {
+        const groupLabel = document.createElement("div");
+        groupLabel.className = "param-group-label";
+        groupLabel.textContent = group.label;
+        container.appendChild(groupLabel);
+
+        for (const paramName of group.params) {
+          const row = document.createElement("div");
+          row.className = "param-checkbox-row";
+
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.className = "param-checkbox";
+          cb.dataset.param = paramName;
+          cb.id = "param_" + paramName.replace(/[^a-z0-9]/gi, "_");
+          cb.checked = !disabledParams.includes(paramName);
+          cb.addEventListener("change", saveSettings);
+
+          const lbl = document.createElement("label");
+          lbl.htmlFor = cb.id;
+          lbl.textContent = paramName;
+
+          row.appendChild(cb);
+          row.appendChild(lbl);
+          container.appendChild(row);
+        }
+      }
+    }
+
+    function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegisterEvent, inInfo, inActionInfo) {
+      uuid = inPropertyInspectorUUID;
+      actionInfo = JSON.parse(inActionInfo);
+      currentSettings = actionInfo.payload.settings || {};
+
+      buildParamFilters(currentSettings.disabledParams || []);
+
+      websocket = new WebSocket("ws://127.0.0.1:" + inPort);
+
+      websocket.onopen = function () {
+        websocket.send(JSON.stringify({
+          event: inRegisterEvent,
+          uuid: inPropertyInspectorUUID
+        }));
+
+        // Restore saved settings to fields
+        for (const field of FIELDS) {
+          const el = document.getElementById(field);
+          if (currentSettings[field] !== undefined && currentSettings[field] !== "") {
+            el.value = currentSettings[field];
+          }
+        }
+
+        refreshInfo();
+        refreshDevices();
+      };
+
+      websocket.onmessage = function (evt) {
+        const data = JSON.parse(evt.data);
+        if (data.event !== "sendToPropertyInspector" || !data.payload) return;
+        const payload = data.payload;
+
+        if (payload.storedCount !== undefined) {
+          document.getElementById("storedInfo").textContent =
+            `${payload.storedCount} parameter(s) currently stored and will be included in the next commit.`;
+        }
+
+        if (payload.midiDevices) {
+          const select = document.getElementById("midiDeviceName");
+          const current = currentSettings.midiDeviceName || payload.selectedDevice || "";
+          select.innerHTML = '<option value="">— Select device —</option>';
+          for (const name of payload.midiDevices) {
+            const opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = name;
+            if (name === current) opt.selected = true;
+            select.appendChild(opt);
+          }
+        }
+      };
+    }
+
+    function saveSettings() {
+      for (const field of FIELDS) {
+        currentSettings[field] = document.getElementById(field).value;
+      }
+
+      const disabledParams = [];
+      document.querySelectorAll(".param-checkbox:not(:checked)").forEach(cb => {
+        disabledParams.push(cb.dataset.param);
+      });
+      currentSettings.disabledParams = disabledParams;
+
+      if (websocket && websocket.readyState === 1) {
+        websocket.send(JSON.stringify({
+          event: "setSettings",
+          context: uuid,
+          payload: currentSettings
+        }));
+      }
+    }
+
+    function refreshInfo() {
+      if (websocket && websocket.readyState === 1) {
+        websocket.send(JSON.stringify({
+          event: "sendToPlugin",
+          action: actionInfo.action,
+          context: uuid,
+          payload: { command: "getStoredCount" }
+        }));
+      }
+    }
+
+    function refreshDevices() {
+      if (websocket && websocket.readyState === 1) {
+        websocket.send(JSON.stringify({
+          event: "sendToPlugin",
+          action: actionInfo.action,
+          context: uuid,
+          payload: { command: "getDevices" }
+        }));
+      }
+    }
+
+    document.getElementById("btnRefreshDevices").addEventListener("click", refreshDevices);
+
+    document.getElementById("btnSelectAll").addEventListener("click", function () {
+      document.querySelectorAll(".param-checkbox").forEach(cb => { cb.checked = true; });
+      saveSettings();
+    });
+
+    document.getElementById("btnSelectNone").addEventListener("click", function () {
+      document.querySelectorAll(".param-checkbox").forEach(cb => { cb.checked = false; });
+      saveSettings();
+    });
+
+    // Attach change listeners to all fields
+    for (const field of FIELDS) {
+      const el = document.getElementById(field);
+      el.addEventListener("change", saveSettings);
+      el.addEventListener("input", saveSettings);
+    }
+  </script>
+</body>
+
+</html>
