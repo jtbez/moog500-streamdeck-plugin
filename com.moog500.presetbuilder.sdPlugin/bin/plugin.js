@@ -9811,7 +9811,9 @@ var resetDefaults = { FACTORY_DEFAULTS: FACTORY_DEFAULTS$1, verifyResetCues: ver
 /**
  * Reset to Defaults Action
  * Sends a known-good set of MIDI CC values and stores them to persistent storage.
- * The expected output can be used to verify that all calculations are correct.
+ * Values are taken from the property inspector settings, falling back to FACTORY_DEFAULTS.
+ * The factory-default verification in reset-defaults.js remains authoritative for the
+ * hardcoded constants; that check is only run when no user overrides are in effect.
  */
 
 const { streamDeck: streamDeck$1, SingletonAction } = require$$0;
@@ -9819,6 +9821,35 @@ const { PARAMETERS, resolveParameter } = parameters;
 const { FACTORY_DEFAULTS, verifyResetCues } = resetDefaults;
 const store$1 = defaultsStore;
 const midiOut$1 = midiOut$4;
+
+function _buildEffectiveDefaults(settings) {
+  const fd = FACTORY_DEFAULTS;
+  const d = fd["Delay Time (BPM Sync)"];
+
+  const num = (key, fallback) => {
+    const v = settings[key];
+    return (v !== undefined && v !== "") ? parseFloat(v) : fallback;
+  };
+  const str = (key, fallback) => settings[key] || fallback;
+
+  return {
+    "Delay Time (BPM Sync)": {
+      timeSignature: str("delayTimeSignature", d.timeSignature),
+      bpm:           num("delayBpm",           d.bpm),
+      beatUnit:      str("delayBeatUnit",       d.beatUnit),
+      beatDivision:  str("delayBeatDivision",   d.beatDivision)
+    },
+    "Feedback":    num("feedback",   fd["Feedback"]),
+    "LFO Shape":   str("lfoShape",   fd["LFO Shape"]),
+    "LFO Rate":    num("lfoRate",    fd["LFO Rate"]),
+    "LFO Amount":  num("lfoAmount",  fd["LFO Amount"]),
+    "Filter Mode": str("filterMode", fd["Filter Mode"])
+  };
+}
+
+function _isFactoryDefaults(settings) {
+  return !settings || Object.keys(settings).length === 0;
+}
 
 let ResetAction$1 = class ResetAction extends SingletonAction {
   constructor() { super(); this.manifestId = "com.moog500.presetbuilder.reset"; }
@@ -9830,10 +9861,13 @@ let ResetAction$1 = class ResetAction extends SingletonAction {
   async onKeyDown(ev) {
     await ev.action.setState(1);
 
+    const settings = ev.payload.settings || {};
+    const effectiveDefaults = _buildEffectiveDefaults(settings);
+
     try {
       const allCues = [];
 
-      for (const [paramName, defaultValue] of Object.entries(FACTORY_DEFAULTS)) {
+      for (const [paramName, defaultValue] of Object.entries(effectiveDefaults)) {
         const def = PARAMETERS[paramName];
         if (!def) {
           streamDeck$1.logger.warn(`Reset: unknown parameter "${paramName}"`);
@@ -9846,7 +9880,6 @@ let ResetAction$1 = class ResetAction extends SingletonAction {
           continue;
         }
 
-        // Store inputs + computed values to persistent storage
         const storedValue = (def.type === "computed_delay" && result.computed)
           ? { ...defaultValue, ...result.computed }
           : defaultValue;
@@ -9855,19 +9888,23 @@ let ResetAction$1 = class ResetAction extends SingletonAction {
         allCues.push(...result.cues);
       }
 
-      // Verify computed cues against expected before sending
-      const { allPass, lines } = verifyResetCues(allCues);
-      streamDeck$1.logger.info(`Reset verification: ${allPass ? "PASS — all CC values match" : "FAIL — some CC values differ"}`);
-      for (const line of lines) streamDeck$1.logger.info(line);
+      // Only verify against EXPECTED_RESET_CUES when no user overrides are active,
+      // since those constants reflect factory defaults specifically.
+      let showOk = true;
+      if (_isFactoryDefaults(settings)) {
+        const { allPass, lines } = verifyResetCues(allCues);
+        streamDeck$1.logger.info(`Reset verification: ${allPass ? "PASS — all CC values match" : "FAIL — some CC values differ"}`);
+        for (const line of lines) streamDeck$1.logger.info(line);
+        showOk = allPass;
+      }
 
-      // Send all CCs
       const { midiChannel } = store$1.getGlobalSettings();
       const sent = midiOut$1.sendCues(allCues, midiChannel);
       if (!sent) {
         streamDeck$1.logger.warn("Reset: MIDI not sent — no device open.");
       }
 
-      if (allPass) {
+      if (showOk) {
         await ev.action.showOk();
       } else {
         await ev.action.showAlert();

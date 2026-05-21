@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Reset to Defaults</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #2D2D2D;
+      color: #ccc;
+      padding: 8px;
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .sdpi-wrapper {
+      padding: 4px 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: #999;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select,
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      background: #3B3B3B;
+      color: #ddd;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    select:focus,
+    input:focus {
+      outline: none;
+      border-color: #FF8C00;
+    }
+
+    .section-title {
+      color: #FF8C00;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 16px 0 8px 0;
+      border-bottom: 1px solid #444;
+      padding-bottom: 4px;
+    }
+
+    .hint {
+      color: #777;
+      font-size: 10px;
+      margin-top: -8px;
+      margin-bottom: 12px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .row > div {
+      flex: 1;
+    }
+
+    .info-box {
+      color: #888;
+      font-size: 11px;
+      padding: 8px;
+      background: #333;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      background: #555;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn:hover {
+      background: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sdpi-wrapper">
+    <div class="section-title">About Reset</div>
+    <div class="info-box">
+      Pressing the Reset button sends these values as MIDI CCs and stores them as the current parameter state.
+      Override any value below to customise your reset target. Leave a field at its factory value if you don't need to change it.
+    </div>
+
+    <div class="section-title">Delay Time</div>
+
+    <div class="row">
+      <div>
+        <label for="delayTimeSignature">Time Signature</label>
+        <select id="delayTimeSignature">
+          <option>4/4</option><option>3/4</option><option>2/4</option>
+          <option>5/4</option><option>7/4</option><option>6/8</option>
+          <option>7/8</option><option>9/8</option><option>12/8</option>
+        </select>
+      </div>
+      <div>
+        <label for="delayBpm">BPM</label>
+        <input type="number" id="delayBpm" min="20" max="300" step="1" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="delayBeatUnit">Beat Unit</label>
+        <select id="delayBeatUnit">
+          <option>Quarter</option>
+          <option>Dotted Quarter</option>
+          <option>8th</option>
+        </select>
+      </div>
+      <div>
+        <label for="delayBeatDivision">Beat Division</label>
+        <select id="delayBeatDivision">
+          <option>Whole</option><option>Half</option><option>Quarter</option>
+          <option>Dotted 8th</option><option>8th</option><option>8th Triplet</option>
+          <option>16th</option><option>16th Triplet</option><option>32nd</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-title">Levels</div>
+
+    <div class="row">
+      <div>
+        <label for="feedback">Feedback (0–100%)</label>
+        <input type="number" id="feedback" min="0" max="100" step="1" />
+      </div>
+      <div>
+        <label for="lfoRate">LFO Rate (0–100%)</label>
+        <input type="number" id="lfoRate" min="0" max="100" step="1" />
+      </div>
+    </div>
+
+    <label for="lfoAmount">LFO Amount (0–100%)</label>
+    <input type="number" id="lfoAmount" min="0" max="100" step="1" />
+
+    <div class="section-title">Tone &amp; Shape</div>
+
+    <div class="row">
+      <div>
+        <label for="lfoShape">LFO Shape</label>
+        <select id="lfoShape">
+          <option>Off</option><option>Sine</option><option>Triangle</option>
+          <option>Square</option><option>Saw</option><option>Ramp</option>
+          <option>S&amp;H</option><option>Smooth S&amp;H</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterMode">Filter Mode</label>
+        <select id="filterMode">
+          <option>Bright</option>
+          <option>Dark</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn" id="btnRestoreFactory">Restore Factory Defaults</button>
+  </div>
+
+  <script>
+    const FACTORY = {
+      delayTimeSignature: "4/4",
+      delayBpm: 120,
+      delayBeatUnit: "Quarter",
+      delayBeatDivision: "Quarter",
+      feedback: 0,
+      lfoShape: "Off",
+      lfoRate: 20,
+      lfoAmount: 10,
+      filterMode: "Bright"
+    };
+
+    const FIELDS = Object.keys(FACTORY);
+
+    let websocket = null;
+    let uuid = null;
+    let actionInfo = null;
+    let currentSettings = {};
+
+    function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegisterEvent, inInfo, inActionInfo) {
+      uuid = inPropertyInspectorUUID;
+      actionInfo = JSON.parse(inActionInfo);
+      currentSettings = actionInfo.payload.settings || {};
+
+      websocket = new WebSocket("ws://127.0.0.1:" + inPort);
+
+      websocket.onopen = function () {
+        websocket.send(JSON.stringify({
+          event: inRegisterEvent,
+          uuid: inPropertyInspectorUUID
+        }));
+        applySettings(currentSettings);
+      };
+    }
+
+    function applySettings(s) {
+      for (const field of FIELDS) {
+        const el = document.getElementById(field);
+        if (!el) continue;
+        const val = s[field] !== undefined ? s[field] : FACTORY[field];
+        el.value = val;
+      }
+    }
+
+    function saveSettings() {
+      for (const field of FIELDS) {
+        const el = document.getElementById(field);
+        if (!el) continue;
+        currentSettings[field] = el.tagName === "INPUT" ? el.value : el.value;
+      }
+
+      if (websocket && websocket.readyState === 1) {
+        websocket.send(JSON.stringify({
+          event: "setSettings",
+          context: uuid,
+          payload: currentSettings
+        }));
+      }
+    }
+
+    document.getElementById("btnRestoreFactory").addEventListener("click", function () {
+      applySettings(FACTORY);
+      saveSettings();
+    });
+
+    for (const field of FIELDS) {
+      const el = document.getElementById(field);
+      if (!el) continue;
+      el.addEventListener("change", saveSettings);
+      el.addEventListener("input", saveSettings);
+    }
+  </script>
+</body>
+
+</html>

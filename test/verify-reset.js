@@ -2,6 +2,11 @@
  * Standalone test: verifies that the factory reset defaults produce
  * the expected MIDI CC values.
  *
+ * This test always runs against the hard-coded FACTORY_DEFAULTS and
+ * EXPECTED_RESET_CUES constants. User overrides configured via the
+ * property inspector do not affect this test — they are validated at
+ * runtime by the plugin itself.
+ *
  * Run with: node test/verify-reset.js
  */
 
