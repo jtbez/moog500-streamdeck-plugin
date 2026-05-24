@@ -8423,7 +8423,6 @@ const PARAMETERS$2 = {
           cc74Range: cc74val
         },
         cues: [
-          { cc: 76, value: 0, label: "Sync OFF" },
           { cc: 74, value: cc74val, label: `Time Range: ${rangeMode}` },
           { cc: 75, value: cc75val, label: `Multiplier: ${multiplier}x` },
           { cc: 12, value: msb, label: `Delay Time MSB` },
@@ -8469,7 +8468,6 @@ const PARAMETERS$2 = {
         valid: ms >= 35 && ms <= 6400,
         displayValue: `${ms}ms`,
         cues: [
-          { cc: 76, value: 0, label: "Sync OFF" },
           { cc: 74, value: cc74val, label: `Time Range: ${rangeMode}` },
           { cc: 75, value: cc75val, label: `Multiplier: ${multiplier}x` },
           { cc: 12, value: msb, label: `Delay Time MSB` },
@@ -9597,7 +9595,9 @@ let CommitAction$1 = class CommitAction extends SingletonAction$1 {
 
   async onWillAppear(ev) {
     const allParams = store$2.readAllParams();
-    const count = Object.keys(allParams).length;
+    const settings = ev.payload.settings || {};
+    const disabledParams = settings.disabledParams || [];
+    const count = Object.keys(allParams).filter(n => !disabledParams.includes(n)).length;
     await ev.action.setTitle(`COMMIT\n${count} params`);
   }
 
@@ -9611,6 +9611,12 @@ let CommitAction$1 = class CommitAction extends SingletonAction$1 {
     if (settings.cueListNumber !== undefined) store$2.storeGlobal("cueListNumber", settings.cueListNumber);
     if (settings.workspaceId !== undefined) store$2.storeGlobal("workspaceId", settings.workspaceId);
     if (settings.disabledParams !== undefined) store$2.storeGlobal("disabledParams", settings.disabledParams);
+
+    // Update button title to reflect current filtered count
+    const allParams = store$2.readAllParams();
+    const disabledParams = settings.disabledParams || store$2.readGlobal("disabledParams") || [];
+    const count = Object.keys(allParams).filter(n => !disabledParams.includes(n)).length;
+    await ev.action.setTitle(`COMMIT\n${count} params`);
 
     // Handle MIDI device configuration (used by SetParameterAction for immediate sends)
     if (settings.midiDeviceName !== undefined) {
@@ -9629,7 +9635,9 @@ let CommitAction$1 = class CommitAction extends SingletonAction$1 {
 
     if (cmd === "getStoredCount") {
       const allParams = store$2.readAllParams();
-      await streamDeck$2.ui.sendToPropertyInspector({ storedCount: Object.keys(allParams).length });
+      const disabledParams = store$2.readGlobal("disabledParams") || [];
+      const count = Object.keys(allParams).filter(n => !disabledParams.includes(n)).length;
+      await streamDeck$2.ui.sendToPropertyInspector({ storedCount: count });
     }
 
     if (cmd === "getDevices") {
@@ -9724,9 +9732,10 @@ let CommitAction$1 = class CommitAction extends SingletonAction$1 {
     // Restore state
     await ev.action.setState(0);
 
-    // Refresh the button title with current count
+    // Refresh the button title with current filtered count
     const remaining = store$2.readAllParams();
-    const count = Object.keys(remaining).length;
+    const currentDisabled = store$2.readGlobal("disabledParams") || [];
+    const count = Object.keys(remaining).filter(n => !currentDisabled.includes(n)).length;
     await ev.action.setTitle(`COMMIT\n${count} params`);
   }
 
@@ -9766,11 +9775,12 @@ var commit = { CommitAction: CommitAction$1 };
 
 const FACTORY_DEFAULTS$1 = {
   "Delay Time (BPM Sync)": { timeSignature: "4/4", bpm: 120, beatUnit: "Quarter", beatDivision: "Quarter" },
-  "Feedback":    0,
-  "LFO Shape":   "Off",
-  "LFO Rate":    20,
-  "LFO Amount":  10,
-  "Filter Mode": "Bright"
+  "Feedback":         0,
+  "LFO Shape":        "Off",
+  "LFO Rate":         20,
+  "LFO Amount":       10,
+  "Filter Mode":      "Bright",
+  "Time Sync On/Off": "Off"
 };
 
 // Expected MIDI output for the above defaults.
@@ -9839,11 +9849,12 @@ function _buildEffectiveDefaults(settings) {
       beatUnit:      str("delayBeatUnit",       d.beatUnit),
       beatDivision:  str("delayBeatDivision",   d.beatDivision)
     },
-    "Feedback":    num("feedback",   fd["Feedback"]),
-    "LFO Shape":   str("lfoShape",   fd["LFO Shape"]),
-    "LFO Rate":    num("lfoRate",    fd["LFO Rate"]),
-    "LFO Amount":  num("lfoAmount",  fd["LFO Amount"]),
-    "Filter Mode": str("filterMode", fd["Filter Mode"])
+    "Feedback":         num("feedback",        fd["Feedback"]),
+    "LFO Shape":        str("lfoShape",        fd["LFO Shape"]),
+    "LFO Rate":         num("lfoRate",         fd["LFO Rate"]),
+    "LFO Amount":       num("lfoAmount",       fd["LFO Amount"]),
+    "Filter Mode":      str("filterMode",      fd["Filter Mode"]),
+    "Time Sync On/Off": str("timeSyncOnOff",   fd["Time Sync On/Off"])
   };
 }
 
