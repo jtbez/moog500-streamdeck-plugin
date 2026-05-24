@@ -184,6 +184,18 @@
       </div>
     </div>
 
+    <div class="section-title">Sync</div>
+
+    <div class="row">
+      <div>
+        <label for="timeSyncOnOff">Time Sync</label>
+        <select id="timeSyncOnOff">
+          <option>Off</option>
+          <option>On</option>
+        </select>
+      </div>
+    </div>
+
     <button class="btn" id="btnRestoreFactory">Restore Factory Defaults</button>
   </div>
 
@@ -197,7 +209,8 @@
       lfoShape: "Off",
       lfoRate: 20,
       lfoAmount: 10,
-      filterMode: "Bright"
+      filterMode: "Bright",
+      timeSyncOnOff: "Off"
     };
 
     const FIELDS = Object.keys(FACTORY);

@@ -216,7 +216,6 @@ const PARAMETERS = {
           cc74Range: cc74val
         },
         cues: [
-          { cc: 76, value: 0, label: "Sync OFF" },
           { cc: 74, value: cc74val, label: `Time Range: ${rangeMode}` },
           { cc: 75, value: cc75val, label: `Multiplier: ${multiplier}x` },
           { cc: 12, value: msb, label: `Delay Time MSB` },
@@ -262,7 +261,6 @@ const PARAMETERS = {
         valid: ms >= 35 && ms <= 6400,
         displayValue: `${ms}ms`,
         cues: [
-          { cc: 76, value: 0, label: "Sync OFF" },
           { cc: 74, value: cc74val, label: `Time Range: ${rangeMode}` },
           { cc: 75, value: cc75val, label: `Multiplier: ${multiplier}x` },
           { cc: 12, value: msb, label: `Delay Time MSB` },

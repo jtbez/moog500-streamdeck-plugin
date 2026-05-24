@@ -29,11 +29,12 @@ function _buildEffectiveDefaults(settings) {
       beatUnit:      str("delayBeatUnit",       d.beatUnit),
       beatDivision:  str("delayBeatDivision",   d.beatDivision)
     },
-    "Feedback":    num("feedback",   fd["Feedback"]),
-    "LFO Shape":   str("lfoShape",   fd["LFO Shape"]),
-    "LFO Rate":    num("lfoRate",    fd["LFO Rate"]),
-    "LFO Amount":  num("lfoAmount",  fd["LFO Amount"]),
-    "Filter Mode": str("filterMode", fd["Filter Mode"])
+    "Feedback":         num("feedback",        fd["Feedback"]),
+    "LFO Shape":        str("lfoShape",        fd["LFO Shape"]),
+    "LFO Rate":         num("lfoRate",         fd["LFO Rate"]),
+    "LFO Amount":       num("lfoAmount",       fd["LFO Amount"]),
+    "Filter Mode":      str("filterMode",      fd["Filter Mode"]),
+    "Time Sync On/Off": str("timeSyncOnOff",   fd["Time Sync On/Off"])
   };
 }
 

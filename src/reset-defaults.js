@@ -5,11 +5,12 @@
 
 const FACTORY_DEFAULTS = {
   "Delay Time (BPM Sync)": { timeSignature: "4/4", bpm: 120, beatUnit: "Quarter", beatDivision: "Quarter" },
-  "Feedback":    0,
-  "LFO Shape":   "Off",
-  "LFO Rate":    20,
-  "LFO Amount":  10,
-  "Filter Mode": "Bright"
+  "Feedback":         0,
+  "LFO Shape":        "Off",
+  "LFO Rate":         20,
+  "LFO Amount":       10,
+  "Filter Mode":      "Bright",
+  "Time Sync On/Off": "Off"
 };
 
 // Expected MIDI output for the above defaults.
