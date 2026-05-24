@@ -22,7 +22,9 @@ class CommitAction extends SingletonAction {
 
   async onWillAppear(ev) {
     const allParams = store.readAllParams();
-    const count = Object.keys(allParams).length;
+    const settings = ev.payload.settings || {};
+    const disabledParams = settings.disabledParams || [];
+    const count = Object.keys(allParams).filter(n => !disabledParams.includes(n)).length;
     await ev.action.setTitle(`COMMIT\n${count} params`);
   }
 
@@ -36,6 +38,12 @@ class CommitAction extends SingletonAction {
     if (settings.cueListNumber !== undefined) store.storeGlobal("cueListNumber", settings.cueListNumber);
     if (settings.workspaceId !== undefined) store.storeGlobal("workspaceId", settings.workspaceId);
     if (settings.disabledParams !== undefined) store.storeGlobal("disabledParams", settings.disabledParams);
+
+    // Update button title to reflect current filtered count
+    const allParams = store.readAllParams();
+    const disabledParams = settings.disabledParams || store.readGlobal("disabledParams") || [];
+    const count = Object.keys(allParams).filter(n => !disabledParams.includes(n)).length;
+    await ev.action.setTitle(`COMMIT\n${count} params`);
 
     // Handle MIDI device configuration (used by SetParameterAction for immediate sends)
     if (settings.midiDeviceName !== undefined) {
@@ -54,7 +62,9 @@ class CommitAction extends SingletonAction {
 
     if (cmd === "getStoredCount") {
       const allParams = store.readAllParams();
-      await streamDeck.ui.sendToPropertyInspector({ storedCount: Object.keys(allParams).length });
+      const disabledParams = store.readGlobal("disabledParams") || [];
+      const count = Object.keys(allParams).filter(n => !disabledParams.includes(n)).length;
+      await streamDeck.ui.sendToPropertyInspector({ storedCount: count });
     }
 
     if (cmd === "getDevices") {
@@ -149,9 +159,10 @@ class CommitAction extends SingletonAction {
     // Restore state
     await ev.action.setState(0);
 
-    // Refresh the button title with current count
+    // Refresh the button title with current filtered count
     const remaining = store.readAllParams();
-    const count = Object.keys(remaining).length;
+    const currentDisabled = store.readGlobal("disabledParams") || [];
+    const count = Object.keys(remaining).filter(n => !currentDisabled.includes(n)).length;
     await ev.action.setTitle(`COMMIT\n${count} params`);
   }
 
