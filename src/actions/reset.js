@@ -43,7 +43,11 @@ function _isFactoryDefaults(settings) {
 }
 
 class ResetAction extends SingletonAction {
-  constructor() { super(); this.manifestId = "com.moog500.presetbuilder.reset"; }
+  constructor(setParameterAction) {
+    super();
+    this.manifestId = "com.moog500.presetbuilder.reset";
+    this._setParameterAction = setParameterAction;
+  }
 
   async onWillAppear(ev) {
     await ev.action.setTitle("RESET\nMoog 500");
@@ -94,6 +98,8 @@ class ResetAction extends SingletonAction {
       if (!sent) {
         streamDeck.logger.warn("Reset: MIDI not sent — no device open.");
       }
+
+      await this._setParameterAction.refreshAll();
 
       if (showOk) {
         await ev.action.showOk();

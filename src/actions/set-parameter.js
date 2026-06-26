@@ -10,12 +10,24 @@ const store = require("../defaults-store");
 const midiOut = require("../midi-out");
 
 class SetParameterAction extends SingletonAction {
-  constructor() { super(); this.manifestId = "com.moog500.presetbuilder.set-parameter"; }
+  constructor() {
+    super();
+    this.manifestId = "com.moog500.presetbuilder.set-parameter";
+    this._activeActions = new Map(); // context → { action, settings }
+  }
+
+  async refreshAll() {
+    for (const { action, settings } of this._activeActions.values()) {
+      const paramName = settings.parameterType;
+      if (paramName) await this._refreshDisplay(action, paramName, settings);
+    }
+  }
 
   // ── Lifecycle ──────────────────────────────────────────────────────────
 
   async onWillAppear(ev) {
     const settings = ev.payload.settings || {};
+    this._activeActions.set(ev.action.id, { action: ev.action, settings });
     const paramName = settings.parameterType;
     if (!paramName) {
       await ev.action.setTitle("Config\nNeeded");
@@ -24,8 +36,13 @@ class SetParameterAction extends SingletonAction {
     await this._refreshDisplay(ev.action, paramName, settings);
   }
 
+  async onWillDisappear(ev) {
+    this._activeActions.delete(ev.action.id);
+  }
+
   async onDidReceiveSettings(ev) {
     const settings = ev.payload.settings || {};
+    this._activeActions.set(ev.action.id, { action: ev.action, settings });
     const paramName = settings.parameterType;
     if (paramName) {
       await this._refreshDisplay(ev.action, paramName, settings);

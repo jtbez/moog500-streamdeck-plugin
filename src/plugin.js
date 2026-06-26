@@ -14,9 +14,10 @@ const savedDevice = store.readGlobal("midiDeviceName");
 if (savedDevice) midiOut.open(savedDevice);
 
 // Register actions
-streamDeck.actions.registerAction(new SetParameterAction());
+const setParameterAction = new SetParameterAction();
+streamDeck.actions.registerAction(setParameterAction);
 streamDeck.actions.registerAction(new CommitAction());
-streamDeck.actions.registerAction(new ResetAction());
+streamDeck.actions.registerAction(new ResetAction(setParameterAction));
 
 // Connect to Stream Deck
 streamDeck.connect();
